@@ -79,7 +79,7 @@ def train_model(model, data):
       metrics=metrics)
   
   callbacks = [
-             tf.keras.callbacks.ModelCheckpoint('fraud_detection_model.pkl',
+             tf.keras.callbacks.ModelCheckpoint('fraud_detection_model.keras',
                                                 monitor='val_prc',
                                                 save_best_only=True,
                                                 mode='max'),
@@ -95,16 +95,18 @@ def train_model(model, data):
 
   model.fit(data['train']['X'], data['train']['y'],
             batch_size=2048,
-            epochs=100,
+            epochs=1,
             callbacks=callbacks,
             validation_data=(data['val']['X'], data['val']['y']),
             class_weight=oversampled_class_weight)
+
+  model = tf.keras.models.load_model('fraud_detection_model.keras')
 
   return model
 
 def get_model_metrics(model, data):
   metrics = {}
-  test_metrics = model.evaluate(data['test']['X'], data['test']['X'], 2048)
+  test_metrics = model.evaluate(data['test']['X'], data['test']['y'], 2048)
 
   for metric_name, metric_value in zip(model.metrics_names, test_metrics):
     metrics[metric_name] = metric_value
